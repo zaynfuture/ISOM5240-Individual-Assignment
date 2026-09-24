@@ -18,8 +18,12 @@ def load_image(data: bytes) -> Image.Image:
             with Image.open(BytesIO(data)) as source:
                 if source.format not in {"JPEG", "PNG", "WEBP"}:
                     raise ValueError("Please choose a JPG, PNG, or WebP picture.")
+                if source.width * source.height > 16_000_000:
+                    raise ValueError("That picture has too many pixels. Please choose one under 16 megapixels.")
                 source.load()
-                return ImageOps.exif_transpose(source).convert("RGB")
+                image = ImageOps.exif_transpose(source).convert("RGB")
+                image.thumbnail((1024, 1024))
+                return image
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError,
             Image.DecompressionBombWarning) as exc:
         raise ValueError("We couldn't open that picture. Please try another image.") from exc
