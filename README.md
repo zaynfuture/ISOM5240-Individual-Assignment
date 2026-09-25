@@ -85,7 +85,7 @@ close the app with its final optional cell when finished.
 After changing the shared Python modules, regenerate the notebook with:
 
 ```sh
-python scripts/build_colab.py
+python build_colab.py
 ```
 
 The notebook retains its original filename so existing links still work.
@@ -115,7 +115,7 @@ Streamlit Cloud uses `app.py`; it does not run the notebook or Gradio.
 ```sh
 python -m pip install pytest nbformat
 python -m pytest -q
-python scripts/smoke_models.py
+python smoke_models.py
 ```
 
 Unit/UI tests mock model and speech calls; they exercise upload validation,
