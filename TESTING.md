@@ -6,12 +6,13 @@ Qwen3-0.6B text generation, using Transformers pipelines on CPU.
 
 ## Current automated checks
 
-`python -m pytest -q`: **20 passed**.
+`python -m pytest -q`: **24 passed**.
 
 Checks cover valid/corrupt/oversized images, exact 50/100-word acceptance boundaries,
 multiple caption details and common synonyms, rejecting unrelated settings,
 complete-story rewrites, model-generated extensions of short stories, content
-screening, model locking, audio failure/retry, and clearing stale UI results.
+screening, model locking, audio failure/retry, replay without regenerating the story,
+age-dependent speech speed, and clearing stale UI results.
 
 No sentences are deleted to fit the word limit. Drafts outside 50–100 words are
 expanded or rewritten by the model. Up to three attempts are permitted. A failed

@@ -108,7 +108,9 @@ Streamlit Cloud uses `app.py`; it does not run the notebook or Gradio.
   temporary files for uploads/audio in Colab. Do not upload personal information.
 - gTTS sends the **story text** to Google's speech service. Internet or service
   failures leave the written story available with a separate audio retry button.
-- The app intentionally does not autoplay audio.
+- Tap **🔊 Read my story aloud** to hear the story, or use the player's Play button.
+  Audio never starts automatically when a story is first generated. You can pause,
+  replay, or download the MP3. Ages 3–5 use a slower reading voice.
 
 ## Tests
 

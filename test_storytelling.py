@@ -113,6 +113,28 @@ def test_empty_ui_and_corrupt_upload():
         assert app.error and app.button[0].disabled
 
 
+def test_read_aloud_reuses_existing_audio_without_regenerating_story():
+    with patch('streamlit.file_uploader', return_value=picture()), \
+         patch.object(engine, 'create_story', return_value=engine.StoryResult('a dog', STORY)) as generate, \
+         patch.object(engine, 'create_audio', return_value=b'mock mp3') as speak:
+        app = AppTest.from_file(Path(__file__).resolve().parent / 'app.py').run()
+        app.button[0].click().run()
+        assert app.button[1].label == '🔊 Read my story aloud'
+        app.button[1].click().run()
+        assert not app.exception
+        assert app.session_state['audio'] == b'mock mp3'
+        generate.assert_called_once()
+        speak.assert_called_once_with(STORY, '3–5')
+
+
+@pytest.mark.parametrize('age,slow', [('3–5', True), ('6–8', False), ('9–10', False)])
+def test_tts_converts_the_actual_story_to_audio(age, slow):
+    with patch('gtts.gTTS') as speech:
+        speech.return_value.write_to_fp.side_effect = lambda output: output.write(b'MP3 data')
+        assert engine.create_audio(STORY, age) == b'MP3 data'
+        speech.assert_called_once_with(text=STORY, lang='en', slow=slow, timeout=(5, 30))
+
+
 def test_setting_alone_cannot_ground_unrecognized_subject():
     assert not engine.grounded_in_caption("We played at the beach.", "a turtle on the beach")
     assert engine.grounded_in_caption("A turtle rested at the beach.", "a turtle on the beach")

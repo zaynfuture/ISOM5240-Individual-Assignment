@@ -86,14 +86,16 @@ if result := st.session_state.get("result"):
     st.subheader("📖 Your little adventure")
     st.markdown(f'<div class="story-page">{html.escape(result.story)}</div>', unsafe_allow_html=True)
     st.caption(f"{word_count(result.story)} words · Made for ages {age_group}")
-    if st.session_state.get("audio_failed"):
-        st.info("Your story is ready to read! The voice couldn't connect this time.")
-        if st.button("🔊 Try the reading voice again"):
+    st.subheader("🎧 Listen to your story")
+    read_aloud = st.button("🔊 Read my story aloud", use_container_width=True)
+    if read_aloud:
+        if not st.session_state.get("audio"):
             speak_story()
-            st.rerun()
+    if st.session_state.get("audio_failed"):
+        st.info("Your story is ready to read! The voice couldn't connect. Tap Read my story aloud to try again.")
     if audio := st.session_state.get("audio"):
-        st.subheader("🎧 Listen to your story")
-        st.audio(audio, format="audio/mp3")
+        st.audio(audio, format="audio/mp3", autoplay=read_aloud)
+        st.caption("Press ▶ on the player if the reading voice does not start. You can pause or listen again.")
         st.download_button("⬇️ Keep the audio", audio, "my-story.mp3", "audio/mpeg")
     st.download_button("📄 Keep the story", result.story, "my-story.txt", "text/plain")
     st.write("💬 Your turn: what do you think happens next?")

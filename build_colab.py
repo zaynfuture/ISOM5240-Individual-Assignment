@@ -32,7 +32,7 @@ def tell_story(filepath, age_group):
         note = "Press play to hear your story!"
     except Exception:
         audio = None
-        note = "Your story is ready. The voice could not connect; use Retry audio."
+        note = "Your story is ready. The voice could not connect; use Read my story aloud."
     return result.story, audio, result.caption, note
 
 
@@ -57,11 +57,11 @@ with gr.Blocks(title="Picture Story Garden") as demo:
     story = gr.Textbox(label="Your little adventure", lines=7, interactive=False)
     audio = gr.Audio(label="Listen to your story", autoplay=False)
     note = gr.Textbox(label="Story garden", interactive=False)
-    retry = gr.Button("🔊 Retry audio")
+    retry = gr.Button("🔊 Read my story aloud")
     with gr.Accordion("What did the storyteller see?", open=False):
         caption = gr.Textbox(label="Picture details", interactive=False)
     make.click(tell_story, [upload, age], [story, audio, caption, note], concurrency_limit=1, concurrency_id="story-inputs")
-    retry.click(retry_audio, [story, age], [audio, note])
+    retry.click(retry_audio, [story, age], [audio, note], concurrency_id="story-inputs")
     # Share a queue so an input change clears any previous generation result.
     upload.change(lambda: ("", None, "", ""), outputs=[story, audio, caption, note], concurrency_id="story-inputs")
     age.change(lambda: ("", None, "", ""), outputs=[story, audio, caption, note], concurrency_id="story-inputs")
