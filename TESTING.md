@@ -1,18 +1,19 @@
 # Validation record — 25 September 2026
 
 Current runtime tested locally: Python 3.12.14, Transformers 4.57.6, PyTorch 2.8.0,
-Streamlit 1.64.0, Pillow 12.3.0, gTTS 2.5.4. Models: BLIP image captioning and
+Streamlit 1.64.0, Pillow 12.3.0, edge-tts 7.2.8. Models: BLIP image captioning and
 Qwen3-0.6B text generation, using Transformers pipelines on CPU.
 
 ## Current automated checks
 
-`python -m pytest -q`: **24 passed**.
+`python -m pytest -q`: **26 passed**.
 
 Checks cover valid/corrupt/oversized images, exact 50/100-word acceptance boundaries,
 multiple caption details and common synonyms, rejecting unrelated settings,
 complete-story rewrites, model-generated extensions of short stories, content
 screening, model locking, audio failure/retry, replay without regenerating the story,
-age-dependent speech speed, and clearing stale UI results.
+age-dependent speech speed, interrupted/empty speech streams, running speech
+inside a Colab-style active event loop, and clearing stale UI results.
 
 No sentences are deleted to fit the word limit. Drafts outside 50–100 words are
 expanded or rewritten by the model. Up to three attempts are permitted. A failed
@@ -31,9 +32,10 @@ Generation is sampled: future stories may differ or need another try. Caption
 coverage is lexical, not a guarantee that every visual detail is correct. Basic
 content checks are not comprehensive child-safety moderation.
 
-The earlier build's real gTTS smoke check generated a 253,248-byte MP3; audio
-creation/retry code remains the same. The current build also completed audio generation on Streamlit Cloud, as
-recorded below. Timing and memory from earlier model versions are
+The current neural speech smoke check generated a 129,600-byte MP3 with
+Jenny at −12% speed. macOS afinfo identified a 21.6-second, 24 kHz mono MP3.
+Audible naturalness has not been independently assessed. Earlier Cloud speech
+checks below used gTTS before this voice replacement. Timing and memory from earlier model versions are
 not treated as measurements of this build.
 
 ## UI and Colab

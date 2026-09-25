@@ -26,7 +26,7 @@ with st.expander("For grown-ups"):
     st.write("Made for ages 3–10. Read and play together: AI can misread pictures or write unsuitable details. "
              "Simple content checks reduce some problems but cannot guarantee every story is suitable.")
     st.write("Pictures are processed on this app's server and are not intentionally saved. "
-             "The story text is sent to Google's text-to-speech service to make audio. "
+             "The story text is sent to Microsoft's online speech service to make audio. "
              "Use pictures without personal information. Stories are in English.")
     st.caption("The first story can take several minutes while the models download. "
                "Later stories still need time on a shared CPU.")
@@ -87,6 +87,7 @@ if result := st.session_state.get("result"):
     st.markdown(f'<div class="story-page">{html.escape(result.story)}</div>', unsafe_allow_html=True)
     st.caption(f"{word_count(result.story)} words · Made for ages {age_group}")
     st.subheader("🎧 Listen to your story")
+    st.caption("A gentle storytelling voice, with a little more time for our youngest listeners.")
     read_aloud = st.button("🔊 Read my story aloud", use_container_width=True)
     if read_aloud:
         if not st.session_state.get("audio"):

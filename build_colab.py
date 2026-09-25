@@ -50,12 +50,12 @@ if "demo" in globals():
 with gr.Blocks(title="Picture Story Garden") as demo:
     gr.Markdown("# 🌈 Picture Story Garden\\nPick a picture. Make a story. Listen and imagine!")
     with gr.Accordion("For grown-ups", open=False):
-        gr.Markdown("Read and play together. AI may misread images or write unsuitable details; simple checks cannot guarantee suitability. Stories are in English. Story text goes to Google for speech. Images are processed in this Colab runtime. Gradio temporarily caches uploads and audio; do not use personal pictures on a shared link. The first run downloads the models and may take several minutes.")
+        gr.Markdown("Read and play together. AI may misread images or write unsuitable details; simple checks cannot guarantee suitability. Stories are in English. Story text goes to Microsoft for natural neural speech. Images are processed in this Colab runtime. Gradio temporarily caches uploads and audio; do not use personal pictures on a shared link. The first run downloads the models and may take several minutes.")
     upload = gr.File(label="Drop a picture here, or click to choose", file_types=[".jpg", ".jpeg", ".png", ".webp"], type="filepath")
     age = gr.Radio(list(AGE_GUIDANCE), value="3–5", label="How old is our reader?")
     make = gr.Button("✨ Make my story", variant="primary")
     story = gr.Textbox(label="Your little adventure", lines=7, interactive=False)
-    audio = gr.Audio(label="Listen to your story", autoplay=False)
+    audio = gr.Audio(label="Listen to your story — gentle storytelling voice", autoplay=False)
     note = gr.Textbox(label="Story garden", interactive=False)
     retry = gr.Button("🔊 Read my story aloud")
     with gr.Accordion("What did the storyteller see?", open=False):
@@ -73,7 +73,7 @@ write_modules = 'from pathlib import Path\n\n' + '\n'.join(
     f'Path({name!r}).write_text({(ROOT / name).read_text()!r})' for name in modules)
 cells = [
     cell('markdown', '# ISOM5240 — Picture Story Garden\n\nRun all cells to upload a picture, generate a 50–100-word story with Hugging Face Transformers pipelines, and listen to it. No API key or other project files are needed. A CPU runtime works; allow several minutes for the first model download.\n\nThis notebook uses Gradio for Colab. Deploy `app.py` from the project to Streamlit Cloud for the assignment submission. The notebook creates a temporary public Gradio link while running.', 0),
-    cell('code', '%pip -q install "transformers==4.57.6" "torch>=2.6,<3" "Pillow>=11,<13" "gTTS>=2.5,<3" "gradio>=5,<7"', 1),
+    cell('code', '%pip -q install "transformers==4.57.6" "torch>=2.6,<3" "Pillow>=11,<13" "edge-tts==7.2.8" "gradio>=5,<7"', 1),
     cell('code', write_modules, 2),
     cell('code', setup, 3),
     cell('markdown', 'When finished, change `STOP_APP` to `True` and run the next cell to close the shared app.', 4),

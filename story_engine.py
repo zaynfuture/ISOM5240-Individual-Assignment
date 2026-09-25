@@ -1,11 +1,12 @@
 """Image -> caption -> 50–100-word story -> speech, shared by both UIs."""
 
+import asyncio
 import gc
 import os
 import re
 import threading
 from dataclasses import dataclass
-from io import BytesIO
+from concurrent.futures import ThreadPoolExecutor
 
 from PIL import Image
 
@@ -217,12 +218,35 @@ def create_story(image: Image.Image, age_group: str, progress=None) -> StoryResu
 
 
 def create_audio(story: str, age_group: str) -> bytes:
-    """gTTS sends the story text to Google; images stay on the app server."""
-    from gtts import gTTS
+    """Read the unchanged story with a gentle neural voice through Microsoft Edge.
 
-    audio = BytesIO()
-    gTTS(text=story, lang="en", slow=age_group == "3–5", timeout=(5, 30)).write_to_fp(audio)
-    result = audio.getvalue()
+    A worker owns the async loop so this also works in Colab, where a loop is
+    already running. Bound the whole request, including an interrupted stream.
+    """
+    import edge_tts
+
+    rates = {"3–5": "-12%", "6–8": "-8%", "9–10": "-4%"}
+    if not story.strip():
+        raise StoryError("Make a story first so our storyteller has something to read.")
+
+    async def synthesize():
+        voice = edge_tts.Communicate(
+            story, voice="en-US-JennyNeural", rate=rates[age_group],
+            pitch="+0Hz", connect_timeout=10, receive_timeout=20,
+        )
+        chunks = []
+        async for chunk in voice.stream():
+            if chunk["type"] == "audio":
+                chunks.append(chunk["data"])
+        return b"".join(chunks)
+
+    def run_voice():
+        async def bounded():
+            return await asyncio.wait_for(synthesize(), timeout=45)
+        return asyncio.run(bounded())
+
+    with ThreadPoolExecutor(max_workers=1) as worker:
+        result = worker.submit(run_voice).result()
     if not result:
         raise StoryError("The reading voice is resting. Please try the audio button again.")
     return result

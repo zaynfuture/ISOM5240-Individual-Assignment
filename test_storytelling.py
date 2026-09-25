@@ -127,12 +127,39 @@ def test_read_aloud_reuses_existing_audio_without_regenerating_story():
         speak.assert_called_once_with(STORY, '3–5')
 
 
-@pytest.mark.parametrize('age,slow', [('3–5', True), ('6–8', False), ('9–10', False)])
-def test_tts_converts_the_actual_story_to_audio(age, slow):
-    with patch('gtts.gTTS') as speech:
-        speech.return_value.write_to_fp.side_effect = lambda output: output.write(b'MP3 data')
+@pytest.mark.parametrize('age,rate', [('3–5', '-12%'), ('6–8', '-8%'), ('9–10', '-4%')])
+def test_tts_reads_exact_story_with_gentle_neural_voice(age, rate):
+    async def chunks():
+        yield {'type': 'SentenceBoundary', 'text': STORY}
+        yield {'type': 'audio', 'data': b'MP3 '}
+        yield {'type': 'audio', 'data': b'data'}
+    with patch('edge_tts.Communicate') as speech:
+        speech.return_value.stream.side_effect = chunks
         assert engine.create_audio(STORY, age) == b'MP3 data'
-        speech.assert_called_once_with(text=STORY, lang='en', slow=slow, timeout=(5, 30))
+        speech.assert_called_once_with(STORY, voice='en-US-JennyNeural', rate=rate,
+                                       pitch='+0Hz', connect_timeout=10, receive_timeout=20)
+
+
+def test_tts_error_propagates_without_hanging_in_colab_event_loop():
+    import asyncio
+    async def broken_stream():
+        yield {'type': 'audio', 'data': b'partial'}
+        raise RuntimeError('connection lost')
+    async def colab_cell():
+        with patch('edge_tts.Communicate') as speech:
+            speech.return_value.stream.side_effect = broken_stream
+            with pytest.raises(RuntimeError, match='connection lost'):
+                engine.create_audio(STORY, '3–5')
+    asyncio.run(colab_cell())
+
+
+def test_tts_empty_stream_is_not_downloadable_audio():
+    async def empty_stream():
+        yield {'type': 'SentenceBoundary', 'text': STORY}
+    with patch('edge_tts.Communicate') as speech:
+        speech.return_value.stream.side_effect = empty_stream
+        with pytest.raises(engine.StoryError, match='reading voice'):
+            engine.create_audio(STORY, '6–8')
 
 
 def test_setting_alone_cannot_ground_unrecognized_subject():

@@ -12,7 +12,7 @@ English **50–100-word narrative**, then listen to it or download the text and 
 | Pretrained image captioning | `Salesforce/blip-image-captioning-base`, task `image-to-text` |
 | Narrative based on image details | `Qwen/Qwen3-0.6B`, task `text-generation`; caption included in the prompt |
 | 50–100 words | Count validated before display; up to three generation attempts; complete drafts are checked; short drafts get model-generated continuations and overlong drafts are rewritten |
-| Text to speech | gTTS, audio player, MP3 download, retry on connection failure |
+| Text to speech | Jenny neural voice (edge-tts), audio player, MP3 download, retry on connection failure |
 | Ages 3–10 | Three age bands, short-story prompts, large text, simple controls, gentle-content prompts and basic word screening |
 | Streamlit Cloud | `app.py`, root requirements, `.streamlit/config.toml`; deployment steps below |
 
@@ -106,11 +106,14 @@ Streamlit Cloud uses `app.py`; it does not run the notebook or Gradio.
 - Pictures are processed on the hosting server, not sent to a hosted inference
   API. Streamlit does not intentionally persist uploads in this app. Gradio uses
   temporary files for uploads/audio in Colab. Do not upload personal information.
-- gTTS sends the **story text** to Google's speech service. Internet or service
+- edge-tts sends the **story text** to Microsoft's online speech service. Internet or service
   failures leave the written story available with a separate audio retry button.
 - Tap **🔊 Read my story aloud** to hear the story, or use the player's Play button.
   Audio never starts automatically when a story is first generated. You can pause,
-  replay, or download the MP3. Ages 3–5 use a slower reading voice.
+  replay, or download the MP3. Jenny provides a friendly adult voice, with natural punctuation and intonation.
+  Reading rates are −12% for ages 3–5, −8% for 6–8, and −4% for 9–10.
+  No API key is needed. This online service does not support custom emotional
+  style instructions; voice and pacing shape the delivery.
 
 ## Tests
 
@@ -123,7 +126,7 @@ python smoke_models.py
 Unit/UI tests mock model and speech calls; they exercise upload validation,
 length/grounding checks, unsafe-output retries, failure handling, model locking,
 audio retries, and clearing stale results. The separate smoke script downloads
-the public BLIP example photograph and runs real models and real gTTS. See
+the public BLIP example photograph and runs real models and real neural speech. See
 `TESTING.md` for observed results and remaining deployment checks.
 
 ## References
@@ -131,4 +134,4 @@ the public BLIP example photograph and runs real models and real gTTS. See
 - [BLIP model card](https://huggingface.co/Salesforce/blip-image-captioning-base)
 - [Qwen3 model card](https://huggingface.co/Qwen/Qwen3-0.6B)
 - [Streamlit deployment](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy)
-- [gTTS API](https://gtts.readthedocs.io/en/stable/module.html)
+- [edge-tts documentation](https://github.com/rany2/edge-tts)
